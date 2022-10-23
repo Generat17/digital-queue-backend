@@ -1,18 +1,17 @@
 package service
 
 import (
-	"github.com/sirupsen/logrus"
 	"server/pkg/repository"
 	"server/types"
 	"time"
 )
 
 type QueueService struct {
-	repo  repository.Employee
+	repo  repository.Queue
 	queue []types.QueueItem
 }
 
-func NewQueueService(repo repository.Employee, queue *[]types.QueueItem) *QueueService {
+func NewQueueService(repo repository.Queue, queue *[]types.QueueItem) *QueueService {
 	return &QueueService{repo: repo, queue: *queue}
 }
 
@@ -31,9 +30,6 @@ func (s *QueueService) AddQueueItem(service string) (int, error) {
 }
 
 func (s *QueueService) GetNewClient(employeeId, workstationId int) (types.GetNewClientResponse, error) {
-
-	logrus.Print(s.queue)
-
 	// получаем список обязанностей сотрудника
 	responsibilityEmployeeList, err := s.repo.GetResponsibilityByEmployeeId(employeeId)
 	if err != nil {
@@ -55,11 +51,13 @@ func (s *QueueService) GetNewClient(employeeId, workstationId int) (types.GetNew
 			}
 		}
 	}
-	logrus.Print(len(s.queue))
 
+	// Пробегаемся по очереди и смотрим кого можно принять
 	for i := 0; i < len(s.queue); i++ {
 		for j := 0; j < len(generalResponsibility); j++ {
 			if (s.queue[i].Status == 1) && (s.queue[i].Service == generalResponsibility[j]) {
+				s.queue[i].Status = 2                  // изменяем статус клиента
+				s.queue[i].Workstation = workstationId // указываем workstation для клиента
 				return types.GetNewClientResponse{NumberTicket: s.queue[i].Id, ServiceTicket: s.queue[i].Service}, nil
 			}
 		}

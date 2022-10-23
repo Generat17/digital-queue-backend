@@ -38,7 +38,7 @@ func NewService(repos *repository.Repository, queue *[]types.QueueItem) *Service
 	return &Service{
 		Authorization:  NewAuthService(repos.Authorization),
 		Employee:       NewEmployeeService(repos.Employee),
-		Queue:          NewQueueService(repos.Employee, queue),
+		Queue:          NewQueueService(repos.Queue, queue),
 		Responsibility: NewResponsibilityService(repos.Responsibility),
 	}
 }

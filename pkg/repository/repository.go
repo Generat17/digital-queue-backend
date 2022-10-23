@@ -12,18 +12,22 @@ type Authorization interface {
 
 type Employee interface {
 	GetEmployeeList() ([]types.Employee, error)
-	GetResponsibilityByEmployeeId(employeeId int) ([]string, error)
-	GetResponsibilityByWorkstationId(workstationId int) ([]string, error)
 }
 
 type Responsibility interface {
 	GetResponsibilityList() ([]types.Responsibility, error)
 }
 
+type Queue interface {
+	GetResponsibilityByEmployeeId(employeeId int) ([]string, error)
+	GetResponsibilityByWorkstationId(workstationId int) ([]string, error)
+}
+
 type Repository struct {
 	Employee
 	Responsibility
 	Authorization
+	Queue
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
@@ -31,5 +35,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Authorization:  NewAuthPostgres(db),
 		Employee:       NewEmployeePostgres(db),
 		Responsibility: NewResponsibilityPostgres(db),
+		Queue:          NewQueuePostgres(db),
 	}
 }
