@@ -3,21 +3,19 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"server/types"
 )
 
-// @Summary Get All Lists
-// @Security ApiKeyAuth
-// @Tags lists
-// @Description get all lists
-// @ID get-all-lists
+// @Summary Get All Queue
+// @Tags queue
+// @Description get all queue lists
+// @ID get-queue-lists
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} getAllListsResponse
+// @Success 200 {object} []types.QueueItem
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api/lists [get]
+// @Router /api/queue [get]
 func (h *Handler) getQueueLists(c *gin.Context) {
 	items, err := h.services.Queue.GetQueueList()
 	if err != nil {
@@ -28,18 +26,21 @@ func (h *Handler) getQueueLists(c *gin.Context) {
 	c.JSON(http.StatusOK, items)
 }
 
-// @Summary Get All Lists
-// @Security ApiKeyAuth
-// @Tags lists
-// @Description get all lists
-// @ID get-all-lists
+type QueueItemNumber struct {
+	Ticket int `json:"TicketID"`
+}
+
+// @Summary Add New Ticket
+// @Tags queue
+// @Description add new ticket (item queue) in the end of the queue
+// @ID add-new-ticket
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} getAllListsResponse
+// @Success 200 {object} QueueItemNumber
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api/lists [get]
+// @Router /api/queue/service [get]
 func (h *Handler) addQueueItem(c *gin.Context) {
 	serviceType := c.Param("service")
 
@@ -49,5 +50,5 @@ func (h *Handler) addQueueItem(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, types.QueueItemNumber{Ticket: queueItemNumber})
+	c.JSON(http.StatusOK, QueueItemNumber{Ticket: queueItemNumber})
 }

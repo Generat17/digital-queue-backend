@@ -5,18 +5,17 @@ import (
 	"net/http"
 )
 
-// @Summary Get All Lists
-// @Security ApiKeyAuth
-// @Tags lists
-// @Description get all lists
-// @ID get-all-lists
+// @Summary Get All Responsibility
+// @Tags responsibility
+// @Description get all data about responsibility
+// @ID get-responsibility-lists
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} getAllListsResponse
+// @Success 200 {object} []types.Responsibility
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api/lists [get]
+// @Router /api/responsibility [get]
 func (h *Handler) getResponsibilityList(c *gin.Context) {
 	items, err := h.services.Responsibility.GetResponsibilityList()
 	if err != nil {

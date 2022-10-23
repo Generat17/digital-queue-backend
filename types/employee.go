@@ -11,3 +11,8 @@ type Employee struct {
 	SessionState bool   `json:"session_state" db:"session_state"`
 	Status       int    `json:"status" db:"status"`
 }
+
+type GetNewClientResponse struct {
+	NumberTicket  int    `json:"number_ticket"`
+	ServiceTicket string `json:"service_ticket"`
+}

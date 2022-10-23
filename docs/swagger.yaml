@@ -1,0 +1,199 @@
+basePath: /api/v1
+definitions:
+  handler.QueueItemNumber:
+    properties:
+      TicketID:
+        type: integer
+    type: object
+  handler.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  handler.getEmployeeListsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/types.Employee'
+        type: array
+    type: object
+  types.Employee:
+    properties:
+      employee_id:
+        type: integer
+      first_name:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+      position:
+        type: integer
+      second_name:
+        type: string
+      session_state:
+        type: boolean
+      status:
+        type: integer
+    type: object
+  types.QueueItem:
+    properties:
+      Id:
+        type: integer
+      Service:
+        type: string
+      Time:
+        type: string
+    type: object
+  types.Responsibility:
+    properties:
+      responsibility_id:
+        type: integer
+      responsibility_name:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: alievtm@gmail.com
+    name: Timur Aliev
+    url: https://t.me/Aliev_Timur_M
+  description: API Server for digital queue
+  title: Digital Queue API
+  version: "1.0"
+paths:
+  /api/employee:
+    get:
+      consumes:
+      - application/json
+      description: get all data about all employee
+      operationId: get-employee-lists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.getEmployeeListsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Employee Lists
+      tags:
+      - employee
+  /api/queue:
+    get:
+      consumes:
+      - application/json
+      description: get all queue lists
+      operationId: get-queue-lists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.QueueItem'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get All Queue
+      tags:
+      - queue
+  /api/queue/service:
+    get:
+      consumes:
+      - application/json
+      description: add new ticket (item queue) in the end of the queue
+      operationId: add-new-ticket
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.QueueItemNumber'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Add New Ticket
+      tags:
+      - queue
+  /api/responsibility:
+    get:
+      consumes:
+      - application/json
+      description: get all data about responsibility
+      operationId: get-responsibility-lists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.Responsibility'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get All Responsibility
+      tags:
+      - responsibility
+swagger: "2.0"

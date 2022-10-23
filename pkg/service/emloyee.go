@@ -14,6 +14,5 @@ func NewEmployeeService(repo repository.Employee) *EmployeeService {
 }
 
 func (s *EmployeeService) GetEmployeeList() ([]types.Employee, error) {
-
 	return s.repo.GetEmployeeList()
 }

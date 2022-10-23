@@ -5,6 +5,7 @@ import (
 	cors "github.com/rs/cors/wrapper/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "server/docs"
 	"server/pkg/service"
 )
 
@@ -24,11 +25,17 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler)) // Swagger
 
-	/*auth := router.Group("/auth")
+	auth := router.Group("/auth")
 	{
-		//auth.POST("/sign-up", h.signUp)
+		auth.POST("/sign-up", h.signUp)
 		auth.POST("/sign-in", h.signIn)
-	}*/
+		auth.POST("/sign-in/:workstation", h.signInWorkstation)
+
+		employee := auth.Group("/employee", h.userIdentityWorkstation)
+		{
+			employee.POST("/client", h.getNewClient)
+		}
+	}
 
 	// доработать
 	//api := router.Group("/api", h.userIdentity)
@@ -37,7 +44,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		// api для операций с сотрудниками
 		employee := api.Group("/employee")
 		{
-			employee.GET("", h.getAllLists)
+			employee.GET("", h.getEmployeeLists)
 			//employee.POST("", h.createEmployee)
 			//employee.DELETE("", h.deleteEmployee)
 			//employee.PATCH("", h.updateEmployee)

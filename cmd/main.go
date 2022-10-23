@@ -88,3 +88,4 @@ func initConfig() error {
 }
 
 // Команда для запуска линтера:  golangci-lint run
+// Команда для init swagger:
