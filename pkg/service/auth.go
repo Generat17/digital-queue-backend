@@ -5,16 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/spf13/viper"
 	"math/rand"
+	"os"
 	"server/pkg/repository"
 	"server/types"
+	"strconv"
 	"time"
-)
-
-const (
-	salt       = "hjqrhjqw124617ajfhajs"
-	signingKey = "qrkjk#4#%35FSFJlja#4353KSFjH"
-	tokenTTL   = 12 * time.Hour
 )
 
 type tokenClaimsWorkstation struct {
@@ -42,16 +39,19 @@ func (s *AuthService) GenerateTokenWorkstation(username, password string, workst
 		return "", err
 	}
 
+	accessTokenTTLString, _ := strconv.Atoi(viper.GetString("token.accessTokenTTL"))
+	accessTokenTTL := time.Duration(accessTokenTTLString) * time.Second
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaimsWorkstation{
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
+			ExpiresAt: time.Now().Add(accessTokenTTL).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 		employee.EmployeeId,
 		workstationId,
 	})
 
-	return token.SignedString([]byte(signingKey))
+	return token.SignedString([]byte(os.Getenv("SIGNING_KEY")))
 }
 
 func (s *AuthService) GetEmployee(username, password string) (types.Employee, error) {
@@ -67,26 +67,34 @@ func (s *AuthService) UpdateTokenWorkstation(employeeId, workstationId int, refr
 
 	var getRefreshToken types.SessionInfo
 	getRefreshToken, err := s.repo.CheckSession(employeeId)
-
 	if err != nil {
 		return "error check session", err
 	}
 
-	// добавить в условие проверку на время жизни refreshToken
-	if refreshToken == getRefreshToken.RefreshToken {
+	timeNow := time.Now().Unix()
+
+	refreshTokenTTL, err := strconv.ParseInt(viper.GetString("token.refreshTokenTTL"), 10, 64)
+	if err != nil {
+		return "error convert refreshTokenTTL", err
+	}
+
+	accessTokenTTLString, _ := strconv.Atoi(viper.GetString("token.accessTokenTTL"))
+	accessTokenTTL := time.Duration(accessTokenTTLString) * time.Second
+
+	if (refreshToken == getRefreshToken.RefreshToken) && (timeNow-getRefreshToken.ExpiresAt < refreshTokenTTL) {
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaimsWorkstation{
 			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(tokenTTL).Unix(),
+				ExpiresAt: time.Now().Add(accessTokenTTL).Unix(),
 				IssuedAt:  time.Now().Unix(),
 			},
 			employeeId,
 			workstationId,
 		})
 
-		return token.SignedString([]byte(signingKey))
+		return token.SignedString([]byte(os.Getenv("SIGNING_KEY")))
 	}
 
-	return "error refreshToken", nil
+	return "Error! refreshToken is invalid.", nil
 }
 
 func (s *AuthService) ParseTokenWorkstation(accessToken string) (types.ParseTokenWorkstationResponse, error) {
@@ -95,7 +103,7 @@ func (s *AuthService) ParseTokenWorkstation(accessToken string) (types.ParseToke
 			return nil, errors.New("invalid signing method")
 		}
 
-		return []byte(signingKey), nil
+		return []byte(os.Getenv("SIGNING_KEY")), nil
 	})
 	if err != nil {
 		return types.ParseTokenWorkstationResponse{UserId: 0, WorkstationId: 0}, err
@@ -140,5 +148,5 @@ func generatePasswordHash(password string) string {
 	hash := sha1.New()
 	hash.Write([]byte(password))
 
-	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
+	return fmt.Sprintf("%x", hash.Sum([]byte(os.Getenv("SALT"))))
 }

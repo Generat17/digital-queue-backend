@@ -17,7 +17,7 @@ func NewEmployeePostgres(db *sqlx.DB) *EmployeePostgres {
 
 func (r *EmployeePostgres) GetEmployeeList() ([]types.Employee, error) {
 	var employee []types.Employee
-	query := fmt.Sprintf("SELECT * FROM %s", employeeTable)
+	query := fmt.Sprintf("SELECT employee_id, first_name, second_name, position, session_state, status FROM %s", employeeTable)
 	err := r.db.Select(&employee, query)
 
 	return employee, err
