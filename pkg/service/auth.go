@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"math/rand"
 	"server/pkg/repository"
 	"server/types"
 	"time"
@@ -15,11 +16,6 @@ const (
 	signingKey = "qrkjk#4#%35FSFJlja#4353KSFjH"
 	tokenTTL   = 12 * time.Hour
 )
-
-type tokenClaims struct {
-	jwt.StandardClaims
-	UserId int `json:"user_id"`
-}
 
 type tokenClaimsWorkstation struct {
 	jwt.StandardClaims
@@ -40,25 +36,8 @@ func (s *AuthService) CreateEmployee(employee types.Employee) (int, error) {
 	return s.repo.CreateEmployee(employee)
 }
 
-func (s *AuthService) GenerateToken(login, password string) (string, error) {
-	employee, err := s.repo.GetEmployee(login, generatePasswordHash(password))
-	if err != nil {
-		return "", err
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
-			IssuedAt:  time.Now().Unix(),
-		},
-		employee.EmployeeId,
-	})
-
-	return token.SignedString([]byte(signingKey))
-}
-
-func (s *AuthService) GenerateTokenWorkstation(login, password string, workstation int) (string, error) {
-	employee, err := s.repo.GetEmployee(login, generatePasswordHash(password))
+func (s *AuthService) GenerateTokenWorkstation(username, password string, workstationId int) (string, error) {
+	employee, err := s.repo.GetEmployeeId(username, generatePasswordHash(password))
 	if err != nil {
 		return "", err
 	}
@@ -69,30 +48,45 @@ func (s *AuthService) GenerateTokenWorkstation(login, password string, workstati
 			IssuedAt:  time.Now().Unix(),
 		},
 		employee.EmployeeId,
-		workstation,
+		workstationId,
 	})
 
 	return token.SignedString([]byte(signingKey))
 }
 
-func (s *AuthService) ParseToken(accessToken string) (int, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("invalid signing method")
-		}
-
-		return []byte(signingKey), nil
-	})
+func (s *AuthService) GetEmployee(username, password string) (types.Employee, error) {
+	employee, err := s.repo.GetEmployee(username, generatePasswordHash(password))
 	if err != nil {
-		return 0, err
+		return types.Employee{EmployeeId: 0, Username: "", Password: "", FirstName: "", SecondName: "", Position: 0, SessionState: false, Status: 0}, err
 	}
 
-	claims, ok := token.Claims.(*tokenClaims)
-	if !ok {
-		return 0, errors.New("token claims are not of type *tokenClaims")
+	return employee, nil
+}
+
+func (s *AuthService) UpdateTokenWorkstation(employeeId, workstationId int, refreshToken string) (string, error) {
+
+	var getRefreshToken types.SessionInfo
+	getRefreshToken, err := s.repo.CheckSession(employeeId)
+
+	if err != nil {
+		return "error check session", err
 	}
 
-	return claims.UserId, nil
+	// добавить в условие проверку на время жизни refreshToken
+	if refreshToken == getRefreshToken.RefreshToken {
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaimsWorkstation{
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(tokenTTL).Unix(),
+				IssuedAt:  time.Now().Unix(),
+			},
+			employeeId,
+			workstationId,
+		})
+
+		return token.SignedString([]byte(signingKey))
+	}
+
+	return "error refreshToken", nil
 }
 
 func (s *AuthService) ParseTokenWorkstation(accessToken string) (types.ParseTokenWorkstationResponse, error) {
@@ -113,6 +107,33 @@ func (s *AuthService) ParseTokenWorkstation(accessToken string) (types.ParseToke
 	}
 
 	return types.ParseTokenWorkstationResponse{UserId: claims.UserId, WorkstationId: claims.WorkstationId}, nil
+}
+
+func (s *AuthService) GenerateRefreshToken() (string, error) {
+	b := make([]byte, 32)
+
+	str := rand.NewSource(time.Now().Unix())
+	r := rand.New(str)
+
+	_, err := r.Read(b)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", b), nil
+}
+
+func (s *AuthService) SetSession(refreshToken string, employeeId int) (bool, error) {
+
+	timeNow := time.Now().Unix()
+
+	_, err := s.repo.SetSession(refreshToken, timeNow, employeeId)
+
+	if err != nil {
+		return false, errors.New("error set session")
+	}
+
+	return true, nil
 }
 
 func generatePasswordHash(password string) string {

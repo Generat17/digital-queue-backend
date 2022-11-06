@@ -1,8 +1,8 @@
 port: "8080"
 
 db:
-  username: "postgres"
+  username: "root"
   host: "localhost"
   port: "5432"
-  dbname: "TCSdb"
+  dbname: "DigQueueDB"
   sslmode: "disable"

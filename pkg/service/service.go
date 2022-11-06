@@ -7,10 +7,12 @@ import (
 
 type Authorization interface {
 	CreateEmployee(employee types.Employee) (int, error)
-	GenerateToken(login, password string) (string, error)
-	GenerateTokenWorkstation(login, password string, workstation int) (string, error)
-	ParseToken(token string) (int, error)
+	GenerateTokenWorkstation(username, password string, workstation int) (string, error)
 	ParseTokenWorkstation(token string) (types.ParseTokenWorkstationResponse, error)
+	GenerateRefreshToken() (string, error)
+	UpdateTokenWorkstation(employeeId, workstationId int, refreshToken string) (string, error)
+	SetSession(refreshToken string, employeeId int) (bool, error)
+	GetEmployee(username, password string) (types.Employee, error)
 }
 
 type Employee interface {

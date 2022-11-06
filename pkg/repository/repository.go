@@ -1,13 +1,17 @@
 package repository
 
 import (
+	"database/sql"
 	"github.com/jmoiron/sqlx"
 	"server/types"
 )
 
 type Authorization interface {
 	CreateEmployee(employee types.Employee) (int, error)
-	GetEmployee(login, password string) (types.Employee, error)
+	GetEmployeeId(username, password string) (types.Employee, error)
+	GetEmployee(username, password string) (types.Employee, error)
+	SetSession(refreshToken string, expiresAt int64, employeeId int) (sql.Result, error)
+	CheckSession(employeeId int) (types.SessionInfo, error)
 }
 
 type Employee interface {
