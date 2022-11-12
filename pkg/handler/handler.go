@@ -21,7 +21,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	router.Use(cors.Default()) // отключяем CORS политику
+	//router.Use(cors.Default()) // отключяем CORS политику default config
+	router.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"access-control-allow-headers", "access-control-allow-methods", "access-control-allow-origin", "authorization", "content-type"},
+		// Enable Debugging for testing, consider disabling in production
+		Debug: true,
+	}))
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler)) // Swagger
 
@@ -29,6 +36,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		auth.POST("/sign-up", h.signUp)
 		auth.POST("/refresh", h.refresh)
+		auth.POST("/logout", h.logout)
 		auth.POST("/sign-in/:workstation", h.signInWorkstation)
 
 		employee := auth.Group("/employee", h.userIdentityWorkstation)
@@ -48,6 +56,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			//employee.POST("", h.createEmployee)
 			//employee.DELETE("", h.deleteEmployee)
 			//employee.PATCH("", h.updateEmployee)
+		}
+
+		workstation := api.Group("workstation")
+		{
+			workstation.GET("", h.getWorkstation)
 		}
 
 		// api для операций с обязанностями (услугами)

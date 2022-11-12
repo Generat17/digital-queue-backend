@@ -37,7 +37,7 @@ func (s *QueueService) GetNewClient(employeeId, workstationId int) (types.GetNew
 	}
 
 	// получаем список обязанностей сотрудника
-	responsibilityWorkstationList, err := s.repo.GetResponsibilityByEmployeeId(workstationId)
+	responsibilityWorkstationList, err := s.repo.GetResponsibilityByWorkstationId(workstationId)
 	if err != nil {
 		return types.GetNewClientResponse{NumberTicket: -1, ServiceTicket: ""}, err
 	}

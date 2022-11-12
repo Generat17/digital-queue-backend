@@ -10,8 +10,10 @@ type Authorization interface {
 	CreateEmployee(employee types.Employee) (int, error)
 	GetEmployeeId(username, password string) (types.Employee, error)
 	GetEmployee(username, password string) (types.Employee, error)
-	SetSession(refreshToken string, expiresAt int64, employeeId int) (sql.Result, error)
+	GetEmployeeById(employeeId int) (types.Employee, error)
+	SetSession(refreshToken string, expiresAt int64, workstationId int, employeeId int) (sql.Result, error)
 	CheckSession(employeeId int) (types.SessionInfo, error)
+	ClearSession(employeeId int) (sql.Result, error)
 }
 
 type Employee interface {
@@ -27,11 +29,16 @@ type Queue interface {
 	GetResponsibilityByWorkstationId(workstationId int) ([]string, error)
 }
 
+type Workstation interface {
+	GetWorkstationList() ([]types.Workstation, error)
+}
+
 type Repository struct {
 	Employee
 	Responsibility
 	Authorization
 	Queue
+	Workstation
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
@@ -40,5 +47,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Employee:       NewEmployeePostgres(db),
 		Responsibility: NewResponsibilityPostgres(db),
 		Queue:          NewQueuePostgres(db),
+		Workstation:    NewWorkstationPostgres(db),
 	}
 }

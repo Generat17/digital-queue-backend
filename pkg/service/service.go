@@ -11,8 +11,10 @@ type Authorization interface {
 	ParseTokenWorkstation(token string) (types.ParseTokenWorkstationResponse, error)
 	GenerateRefreshToken() (string, error)
 	UpdateTokenWorkstation(employeeId, workstationId int, refreshToken string) (string, error)
-	SetSession(refreshToken string, employeeId int) (bool, error)
+	SetSession(refreshToken string, workstationId int, employeeId int) (bool, error)
+	LogOut(employeeId int) (bool, error)
 	GetEmployee(username, password string) (types.Employee, error)
+	GetEmployeeById(employeeId int) (types.Employee, error)
 }
 
 type Employee interface {
@@ -29,11 +31,16 @@ type Responsibility interface {
 	GetResponsibilityList() ([]types.Responsibility, error)
 }
 
+type Workstation interface {
+	GetWorkstationList() ([]types.Workstation, error)
+}
+
 type Service struct {
 	Employee
 	Queue
 	Responsibility
 	Authorization
+	Workstation
 }
 
 func NewService(repos *repository.Repository, queue *[]types.QueueItem) *Service {
@@ -42,5 +49,6 @@ func NewService(repos *repository.Repository, queue *[]types.QueueItem) *Service
 		Employee:       NewEmployeeService(repos.Employee),
 		Queue:          NewQueueService(repos.Queue, queue),
 		Responsibility: NewResponsibilityService(repos.Responsibility),
+		Workstation:    NewWorkstationService(repos.Workstation),
 	}
 }

@@ -8,4 +8,5 @@ type ParseTokenWorkstationResponse struct {
 type SessionInfo struct {
 	RefreshToken string `json:"refresh_token" db:"refresh_token"`
 	ExpiresAt    int64  `json:"expires_at" db:"expires_at"`
+	Workstation  int    `json:"workstation_id" db:"workstation_id"`
 }

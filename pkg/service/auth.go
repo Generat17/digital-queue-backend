@@ -63,10 +63,19 @@ func (s *AuthService) GetEmployee(username, password string) (types.Employee, er
 	return employee, nil
 }
 
+func (s *AuthService) GetEmployeeById(employeeId int) (types.Employee, error) {
+	employee, err := s.repo.GetEmployeeById(employeeId)
+	if err != nil {
+		return types.Employee{EmployeeId: 0, Username: "", Password: "", FirstName: "", SecondName: "", Position: 0, SessionState: false, Status: 0}, err
+	}
+
+	return employee, nil
+}
+
 func (s *AuthService) UpdateTokenWorkstation(employeeId, workstationId int, refreshToken string) (string, error) {
 
-	var getRefreshToken types.SessionInfo
-	getRefreshToken, err := s.repo.CheckSession(employeeId)
+	var getSessionInfo types.SessionInfo
+	getSessionInfo, err := s.repo.CheckSession(employeeId)
 	if err != nil {
 		return "error check session", err
 	}
@@ -81,7 +90,7 @@ func (s *AuthService) UpdateTokenWorkstation(employeeId, workstationId int, refr
 	accessTokenTTLString, _ := strconv.Atoi(viper.GetString("token.accessTokenTTL"))
 	accessTokenTTL := time.Duration(accessTokenTTLString) * time.Second
 
-	if (refreshToken == getRefreshToken.RefreshToken) && (timeNow-getRefreshToken.ExpiresAt < refreshTokenTTL) {
+	if (refreshToken == getSessionInfo.RefreshToken) && (timeNow-getSessionInfo.ExpiresAt < refreshTokenTTL) && (getSessionInfo.Workstation == workstationId) {
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaimsWorkstation{
 			jwt.StandardClaims{
 				ExpiresAt: time.Now().Add(accessTokenTTL).Unix(),
@@ -94,7 +103,7 @@ func (s *AuthService) UpdateTokenWorkstation(employeeId, workstationId int, refr
 		return token.SignedString([]byte(os.Getenv("SIGNING_KEY")))
 	}
 
-	return "Error! refreshToken is invalid.", nil
+	return "refreshToken is invalid", errors.New("refreshToken is invalid")
 }
 
 func (s *AuthService) ParseTokenWorkstation(accessToken string) (types.ParseTokenWorkstationResponse, error) {
@@ -131,14 +140,25 @@ func (s *AuthService) GenerateRefreshToken() (string, error) {
 	return fmt.Sprintf("%x", b), nil
 }
 
-func (s *AuthService) SetSession(refreshToken string, employeeId int) (bool, error) {
+func (s *AuthService) SetSession(refreshToken string, workstationId int, employeeId int) (bool, error) {
 
 	timeNow := time.Now().Unix()
 
-	_, err := s.repo.SetSession(refreshToken, timeNow, employeeId)
+	_, err := s.repo.SetSession(refreshToken, timeNow, workstationId, employeeId)
 
 	if err != nil {
 		return false, errors.New("error set session")
+	}
+
+	return true, nil
+}
+
+func (s *AuthService) LogOut(employeeId int) (bool, error) {
+
+	_, err := s.repo.ClearSession(employeeId)
+
+	if err != nil {
+		return false, errors.New("error clear session")
 	}
 
 	return true, nil

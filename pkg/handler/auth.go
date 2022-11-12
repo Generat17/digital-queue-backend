@@ -83,7 +83,7 @@ func (h *Handler) signInWorkstation(c *gin.Context) {
 		return
 	}
 
-	_, err = h.services.Authorization.SetSession(refreshToken, employee.EmployeeId)
+	_, err = h.services.Authorization.SetSession(refreshToken, workstationId, employee.EmployeeId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -93,12 +93,13 @@ func (h *Handler) signInWorkstation(c *gin.Context) {
 		"accessToken":  accessToken,
 		"refreshToken": refreshToken,
 		"employee":     employee,
+		"workstation":  workstationId,
 	})
 }
 
-type refreshToken struct {
-	WorkstationId int    `json:"workstationId" binding:"required"`
-	EmployeeId    int    `json:"employeeId" binding:"required"`
+type refreshTokenInput struct {
+	WorkstationId string `json:"workstationId" binding:"required"`
+	EmployeeId    string `json:"employeeId" binding:"required"`
 	RefreshToken  string `json:"refreshToken" binding:"required"`
 }
 
@@ -116,16 +117,24 @@ type refreshToken struct {
 // @Router /auth/sign-in [post]
 func (h *Handler) refresh(c *gin.Context) {
 
-	var input refreshToken
+	var input refreshTokenInput
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	accessToken, err := h.services.Authorization.UpdateTokenWorkstation(input.EmployeeId, input.WorkstationId, input.RefreshToken)
+	WorkstationId, _ := strconv.Atoi(input.WorkstationId)
+	EmployeeId, _ := strconv.Atoi(input.EmployeeId)
+
+	accessToken, err := h.services.Authorization.UpdateTokenWorkstation(EmployeeId, WorkstationId, input.RefreshToken)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		if accessToken == "refreshToken is invalid" {
+			newErrorResponse(c, http.StatusForbidden, err.Error())
+		} else {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		}
+
 		return
 	}
 
@@ -135,7 +144,13 @@ func (h *Handler) refresh(c *gin.Context) {
 		return
 	}
 
-	_, err = h.services.Authorization.SetSession(refreshToken, input.EmployeeId)
+	employee, err := h.services.Authorization.GetEmployeeById(EmployeeId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	_, err = h.services.Authorization.SetSession(refreshToken, WorkstationId, EmployeeId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -144,5 +159,42 @@ func (h *Handler) refresh(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"accessToken":  accessToken,
 		"refreshToken": refreshToken,
+		"employee":     employee,
+		"workstation":  WorkstationId,
 	})
+}
+
+type logoutInput struct {
+	EmployeeId string `json:"employeeId" binding:"required"`
+}
+
+// @Summary SignUp
+// @Tags auth
+// @Description create account
+// @ID create-account
+// @Accept  json
+// @Produce  json
+// @Param input body todo.User true "account info"
+// @Success 200 {integer} integer 1
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /auth/sign-up [post]
+func (h *Handler) logout(c *gin.Context) {
+	var input logoutInput
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	employeeId, _ := strconv.Atoi(input.EmployeeId)
+
+	res, err := h.services.Authorization.LogOut(employeeId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
