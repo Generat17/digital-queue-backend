@@ -48,3 +48,7 @@ func (h *Handler) getNewClient(c *gin.Context) {
 	logrus.Print(empId, workstationId)
 	c.JSON(http.StatusOK, client)
 }
+
+type setStatusInput struct {
+	StatusCode string `json:"statusCode" binding:"required"`
+}

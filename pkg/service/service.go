@@ -33,6 +33,7 @@ type Responsibility interface {
 
 type Workstation interface {
 	GetWorkstationList() ([]types.Workstation, error)
+	GetWorkstation(workstationId int) (types.Workstation, error)
 }
 
 type Service struct {

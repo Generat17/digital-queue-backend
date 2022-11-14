@@ -27,10 +27,12 @@ type Responsibility interface {
 type Queue interface {
 	GetResponsibilityByEmployeeId(employeeId int) ([]string, error)
 	GetResponsibilityByWorkstationId(workstationId int) ([]string, error)
+	SetStatusEmployee(statusCode int, employeeId int) (sql.Result, error)
 }
 
 type Workstation interface {
 	GetWorkstationList() ([]types.Workstation, error)
+	GetWorkstation(workstationId int) (types.Workstation, error)
 }
 
 type Repository struct {

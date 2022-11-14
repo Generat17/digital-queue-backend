@@ -16,3 +16,7 @@ func NewWorkstationService(repo repository.Workstation) *WorkstationService {
 func (s *WorkstationService) GetWorkstationList() ([]types.Workstation, error) {
 	return s.repo.GetWorkstationList()
 }
+
+func (s *WorkstationService) GetWorkstation(workstationId int) (types.Workstation, error) {
+	return s.repo.GetWorkstation(workstationId)
+}

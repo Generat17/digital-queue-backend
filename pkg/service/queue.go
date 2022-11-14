@@ -56,12 +56,13 @@ func (s *QueueService) GetNewClient(employeeId, workstationId int) (types.GetNew
 	for i := 0; i < len(s.queue); i++ {
 		for j := 0; j < len(generalResponsibility); j++ {
 			if (s.queue[i].Status == 1) && (s.queue[i].Service == generalResponsibility[j]) {
-				s.queue[i].Status = 2                  // изменяем статус клиента
+				s.queue[i].Status = 2 // изменяем статус клиента
+				s.repo.SetStatusEmployee(2, employeeId)
 				s.queue[i].Workstation = workstationId // указываем workstation для клиента
 				return types.GetNewClientResponse{NumberTicket: s.queue[i].Id, ServiceTicket: s.queue[i].Service}, nil
 			}
 		}
 	}
 
-	return types.GetNewClientResponse{NumberTicket: -1, ServiceTicket: "nothing"}, nil
+	return types.GetNewClientResponse{NumberTicket: -1, ServiceTicket: "Нет доступного клиента"}, nil
 }

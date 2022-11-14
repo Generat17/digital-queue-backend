@@ -77,6 +77,12 @@ func (h *Handler) signInWorkstation(c *gin.Context) {
 		return
 	}
 
+	workstation, err := h.services.Workstation.GetWorkstation(workstationId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	employee, err := h.services.Authorization.GetEmployee(input.Username, input.Password)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -93,7 +99,7 @@ func (h *Handler) signInWorkstation(c *gin.Context) {
 		"accessToken":  accessToken,
 		"refreshToken": refreshToken,
 		"employee":     employee,
-		"workstation":  workstationId,
+		"workstation":  workstation,
 	})
 }
 
@@ -138,6 +144,12 @@ func (h *Handler) refresh(c *gin.Context) {
 		return
 	}
 
+	workstation, err := h.services.Workstation.GetWorkstation(WorkstationId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	refreshToken, err := h.services.Authorization.GenerateRefreshToken()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -160,7 +172,7 @@ func (h *Handler) refresh(c *gin.Context) {
 		"accessToken":  accessToken,
 		"refreshToken": refreshToken,
 		"employee":     employee,
-		"workstation":  WorkstationId,
+		"workstation":  workstation,
 	})
 }
 

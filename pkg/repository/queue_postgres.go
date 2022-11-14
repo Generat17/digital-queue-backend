@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 )
@@ -32,4 +33,11 @@ func (r *QueuePostgres) GetResponsibilityByWorkstationId(workstationId int) ([]s
 	err := r.db.Select(&responsibilityName, query, workstationId)
 
 	return responsibilityName, err
+}
+
+func (r *QueuePostgres) SetStatusEmployee(statusCode int, employeeId int) (sql.Result, error) {
+	query := fmt.Sprintf("UPDATE %s SET status=$1 WHERE employee_id=$2", employeeTable)
+	res, err := r.db.Exec(query, statusCode, employeeId)
+
+	return res, err
 }
