@@ -14,6 +14,7 @@ type Authorization interface {
 	SetSession(refreshToken string, expiresAt int64, workstationId int, employeeId int) (sql.Result, error)
 	CheckSession(employeeId int) (types.SessionInfo, error)
 	ClearSession(employeeId int) (sql.Result, error)
+	GetStatusEmployee(employeeId int) (int, error)
 }
 
 type Employee interface {

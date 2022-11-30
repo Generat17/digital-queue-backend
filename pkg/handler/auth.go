@@ -95,6 +95,12 @@ func (h *Handler) signInWorkstation(c *gin.Context) {
 		return
 	}
 
+	_, err = h.services.Queue.SetEmployeeStatus(1, employee.EmployeeId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"accessToken":  accessToken,
 		"refreshToken": refreshToken,

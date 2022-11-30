@@ -164,6 +164,16 @@ func (s *AuthService) LogOut(employeeId int) (bool, error) {
 	return true, nil
 }
 
+func (s *AuthService) GetStatusEmployee(employeeId int) (int, error) {
+
+	statusEmployee, err := s.repo.GetStatusEmployee(employeeId)
+	if err != nil {
+		return -1, errors.New("error get status employee")
+	}
+
+	return statusEmployee, nil
+}
+
 func generatePasswordHash(password string) string {
 	hash := sha1.New()
 	hash.Write([]byte(password))

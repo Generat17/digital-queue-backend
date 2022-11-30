@@ -5,6 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"server/types"
+	"strconv"
 )
 
 type getEmployeeListsResponse struct {
@@ -45,10 +46,57 @@ func (h *Handler) getNewClient(c *gin.Context) {
 		return
 	}
 
-	logrus.Print(empId, workstationId)
+	logrus.Print(client)
+
 	c.JSON(http.StatusOK, client)
 }
 
-type setStatusInput struct {
-	StatusCode string `json:"statusCode" binding:"required"`
+type confirmClientInput struct {
+	NumberQueue string `json:"numberQueue" binding:"required"`
+}
+
+func (h *Handler) confirmClient(c *gin.Context) {
+	employeeId, _ := c.Get(userCtx)
+	empId := employeeId.(int)
+
+	var input confirmClientInput
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	numberQueue, _ := strconv.Atoi(input.NumberQueue)
+
+	client, err := h.services.Queue.ConfirmClient(numberQueue, empId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, client)
+}
+
+func (h *Handler) endClient(c *gin.Context) {
+	employeeId, _ := c.Get(userCtx)
+	empId := employeeId.(int)
+
+	client, err := h.services.Queue.EndClient(empId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, client)
+}
+
+func (h *Handler) getStatus(c *gin.Context) {
+	employeeId, _ := c.Get(userCtx)
+	empId := employeeId.(int)
+
+	status, err := h.services.Authorization.GetStatusEmployee(empId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, status)
 }

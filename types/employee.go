@@ -16,6 +16,8 @@ type Employee struct {
 }
 
 type GetNewClientResponse struct {
-	NumberTicket  int    `json:"number_ticket"`
-	ServiceTicket string `json:"service_ticket"`
+	NumberTicket   int    `json:"number_ticket"`
+	ServiceTicket  string `json:"service_ticket"`
+	EmployeeStatus int    `json:"employee_status"`
+	NumberQueue    int    `json:"number_queue"`
 }

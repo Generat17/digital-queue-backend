@@ -35,6 +35,14 @@ func (r *AuthPostgres) GetEmployeeId(username, password string) (types.Employee,
 	return employee, err
 }
 
+func (r *AuthPostgres) GetStatusEmployee(employeeId int) (int, error) {
+	var employee types.Employee
+	query := fmt.Sprintf("SELECT status FROM %s WHERE employee_id=$1", employeeTable)
+	err := r.db.Get(&employee, query, employeeId)
+
+	return employee.Status, err
+}
+
 func (r *AuthPostgres) GetEmployeeById(employeeId int) (types.Employee, error) {
 	var employee types.Employee
 	query := fmt.Sprintf("SELECT * FROM %s WHERE employee_id=$1", employeeTable)
@@ -69,8 +77,8 @@ func (r *AuthPostgres) CheckSession(employeeId int) (types.SessionInfo, error) {
 }
 
 func (r *AuthPostgres) ClearSession(employeeId int) (sql.Result, error) {
-	query := fmt.Sprintf("UPDATE %s SET refresh_token=$1, expires_at=$2, workstation_id=$3 WHERE employee_id=$4", employeeTable)
-	res, err := r.db.Exec(query, "", 0, -1, employeeId)
+	query := fmt.Sprintf("UPDATE %s SET refresh_token=$1, expires_at=$2, workstation_id=$3, status=$4 WHERE employee_id=$5", employeeTable)
+	res, err := r.db.Exec(query, "", 0, -1, 0, employeeId)
 
 	return res, err
 }

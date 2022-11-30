@@ -42,6 +42,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		employee := auth.Group("/employee", h.userIdentityWorkstation)
 		{
 			employee.POST("/client", h.getNewClient)
+			employee.POST("/confirmClient", h.confirmClient)
+			employee.POST("/endClient", h.endClient)
+			employee.POST("/getStatus", h.getStatus)
 		}
 	}
 

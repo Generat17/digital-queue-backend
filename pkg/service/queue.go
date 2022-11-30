@@ -29,17 +29,41 @@ func (s *QueueService) AddQueueItem(service string) (int, error) {
 	return len(s.queue), nil
 }
 
+func (s *QueueService) ConfirmClient(numberQueue, employeeId int) (int, error) {
+
+	copy(s.queue[numberQueue:], s.queue[numberQueue+1:]) // удаляем элемент из очереди
+	s.queue[len(s.queue)-1] = types.QueueItem{}          // удаляем элемент из очереди
+	s.queue = s.queue[:len(s.queue)-1]                   // удаляем элемент из очереди
+
+	s.repo.SetStatusEmployee(3, employeeId)
+
+	return 3, nil
+}
+
+func (s *QueueService) EndClient(employeeId int) (int, error) {
+
+	s.repo.SetStatusEmployee(1, employeeId)
+
+	return 1, nil
+}
+
+func (s *QueueService) SetEmployeeStatus(statusCode, employeeId int) (bool, error) {
+	s.repo.SetStatusEmployee(statusCode, employeeId)
+
+	return true, nil
+}
+
 func (s *QueueService) GetNewClient(employeeId, workstationId int) (types.GetNewClientResponse, error) {
 	// получаем список обязанностей сотрудника
 	responsibilityEmployeeList, err := s.repo.GetResponsibilityByEmployeeId(employeeId)
 	if err != nil {
-		return types.GetNewClientResponse{NumberTicket: -1, ServiceTicket: ""}, err
+		return types.GetNewClientResponse{NumberTicket: -1, ServiceTicket: "", EmployeeStatus: 1, NumberQueue: 0}, err
 	}
 
 	// получаем список обязанностей сотрудника
 	responsibilityWorkstationList, err := s.repo.GetResponsibilityByWorkstationId(workstationId)
 	if err != nil {
-		return types.GetNewClientResponse{NumberTicket: -1, ServiceTicket: ""}, err
+		return types.GetNewClientResponse{NumberTicket: -1, ServiceTicket: "", EmployeeStatus: 1, NumberQueue: 0}, err
 	}
 
 	// находим общие обязанности у сотрудника и рабочего места
@@ -56,13 +80,12 @@ func (s *QueueService) GetNewClient(employeeId, workstationId int) (types.GetNew
 	for i := 0; i < len(s.queue); i++ {
 		for j := 0; j < len(generalResponsibility); j++ {
 			if (s.queue[i].Status == 1) && (s.queue[i].Service == generalResponsibility[j]) {
-				s.queue[i].Status = 2 // изменяем статус клиента
 				s.repo.SetStatusEmployee(2, employeeId)
 				s.queue[i].Workstation = workstationId // указываем workstation для клиента
-				return types.GetNewClientResponse{NumberTicket: s.queue[i].Id, ServiceTicket: s.queue[i].Service}, nil
+				return types.GetNewClientResponse{NumberTicket: s.queue[i].Id, ServiceTicket: s.queue[i].Service, EmployeeStatus: 2, NumberQueue: i}, nil
 			}
 		}
 	}
 
-	return types.GetNewClientResponse{NumberTicket: -1, ServiceTicket: "Нет доступного клиента"}, nil
+	return types.GetNewClientResponse{NumberTicket: -1, ServiceTicket: "Нет доступного клиента", EmployeeStatus: 1, NumberQueue: 0}, nil
 }

@@ -15,6 +15,7 @@ type Authorization interface {
 	LogOut(employeeId int) (bool, error)
 	GetEmployee(username, password string) (types.Employee, error)
 	GetEmployeeById(employeeId int) (types.Employee, error)
+	GetStatusEmployee(employeeId int) (int, error)
 }
 
 type Employee interface {
@@ -25,6 +26,9 @@ type Queue interface {
 	GetQueueList() ([]types.QueueItem, error)
 	AddQueueItem(service string) (int, error)
 	GetNewClient(employeeId, workstationId int) (types.GetNewClientResponse, error)
+	ConfirmClient(numberQueue, employeeId int) (int, error)
+	EndClient(employeeId int) (int, error)
+	SetEmployeeStatus(statusCode, employeeId int) (bool, error)
 }
 
 type Responsibility interface {
