@@ -8,14 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary SignUp
+// @Summary Sign Up
 // @Tags auth
-// @Description create account
-// @ID create-account
+// @Description registration new account
+// @ID registration-account
 // @Accept  json
 // @Produce  json
-// @Param input body todo.User true "account info"
-// @Success 200 {integer} integer 1
+// @Param input body types.Employee true "credentials"
+// @Success 200 {object} types.SignUpResponse "Employee ID"
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
@@ -34,9 +34,7 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
-	})
+	c.JSON(http.StatusOK, types.SignUpResponse{Id: id})
 }
 
 type signInInput struct {
@@ -44,14 +42,14 @@ type signInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
-// @Summary SignIn
+// @Summary Sign In
 // @Tags auth
-// @Description username
-// @ID username
+// @Description employee authorization
+// @ID sign-in
 // @Accept  json
 // @Produce  json
 // @Param input body signInInput true "credentials"
-// @Success 200 {string} string "token"
+// @Success 200 {object} types.AuthorizationResponse "response"
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
@@ -101,11 +99,11 @@ func (h *Handler) signInWorkstation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"accessToken":  accessToken,
-		"refreshToken": refreshToken,
-		"employee":     employee,
-		"workstation":  workstation,
+	c.JSON(http.StatusOK, types.AuthorizationResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		Employee:     employee,
+		Workstation:  workstation,
 	})
 }
 
@@ -115,18 +113,19 @@ type refreshTokenInput struct {
 	RefreshToken  string `json:"refreshToken" binding:"required"`
 }
 
-// @Summary SignIn
+// @Summary Refresh
+// @Security ApiKeyAuth
 // @Tags auth
-// @Description username
-// @ID username
+// @Description refresh AccessToken, RefreshToken, Employee, Workstation data
+// @ID refresh
 // @Accept  json
 // @Produce  json
-// @Param input body signInInput true "credentials"
-// @Success 200 {string} string "token"
+// @Param input body refreshTokenInput true "credentials"
+// @Success 200 {object} types.AuthorizationResponse "response"
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /auth/sign-in [post]
+// @Router /auth/refresh [post]
 func (h *Handler) refresh(c *gin.Context) {
 
 	var input refreshTokenInput
@@ -174,11 +173,11 @@ func (h *Handler) refresh(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"accessToken":  accessToken,
-		"refreshToken": refreshToken,
-		"employee":     employee,
-		"workstation":  workstation,
+	c.JSON(http.StatusOK, types.AuthorizationResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		Employee:     employee,
+		Workstation:  workstation,
 	})
 }
 
@@ -186,18 +185,19 @@ type logoutInput struct {
 	EmployeeId string `json:"employeeId" binding:"required"`
 }
 
-// @Summary SignUp
+// @Summary Logout
+// @Security ApiKeyAuth
 // @Tags auth
-// @Description create account
-// @ID create-account
+// @Description logout account
+// @ID logout
 // @Accept  json
 // @Produce  json
-// @Param input body todo.User true "account info"
-// @Success 200 {integer} integer 1
+// @Param input body logoutInput true "credentials"
+// @Success 200 {object} types.LogoutResponse "response"
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /auth/sign-up [post]
+// @Router /auth/logout [post]
 func (h *Handler) logout(c *gin.Context) {
 	var input logoutInput
 
@@ -208,11 +208,11 @@ func (h *Handler) logout(c *gin.Context) {
 
 	employeeId, _ := strconv.Atoi(input.EmployeeId)
 
-	res, err := h.services.Authorization.LogOut(employeeId)
+	statusResponse, err := h.services.Authorization.LogOut(employeeId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, types.LogoutResponse{StatusResponse: statusResponse})
 }

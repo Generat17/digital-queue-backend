@@ -21,3 +21,15 @@ type GetNewClientResponse struct {
 	EmployeeStatus int    `json:"employee_status"`
 	NumberQueue    int    `json:"number_queue"`
 }
+
+type GetEmployeeListsResponse struct {
+	Data []Employee `json:"data"`
+}
+
+type ConfirmClientResponse struct {
+	NumberQueue int `json:"number_queue"`
+}
+
+type EmployeeStatusResponse struct {
+	EmployeeStatus int `json:"employee_status"`
+}

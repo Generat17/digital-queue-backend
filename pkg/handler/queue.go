@@ -3,12 +3,13 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"server/types"
 )
 
-// @Summary Get All Queue
+// @Summary Get Queue List
 // @Tags queue
-// @Description get all queue lists
-// @ID get-queue-lists
+// @Description get all queue list
+// @ID get-queue-list
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} []types.QueueItem
@@ -26,17 +27,13 @@ func (h *Handler) getQueueLists(c *gin.Context) {
 	c.JSON(http.StatusOK, items)
 }
 
-type QueueItemNumber struct {
-	Ticket int `json:"TicketID"`
-}
-
-// @Summary Add New Ticket
+// @Summary Add New Queue Item
 // @Tags queue
 // @Description add new ticket (item queue) in the end of the queue
 // @ID add-new-ticket
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} QueueItemNumber
+// @Success 200 {object} types.QueueItemNumber
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
@@ -50,5 +47,5 @@ func (h *Handler) addQueueItem(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, QueueItemNumber{Ticket: queueItemNumber})
+	c.JSON(http.StatusOK, types.QueueItemNumber{Ticket: queueItemNumber})
 }

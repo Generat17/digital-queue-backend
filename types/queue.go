@@ -8,3 +8,7 @@ type QueueItem struct {
 	Workstation int    `json:"Workstation"`
 	Status      int    `json:"Status"`
 }
+
+type QueueItemNumber struct {
+	Ticket int `json:"TicketID"`
+}

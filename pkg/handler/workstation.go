@@ -10,18 +10,17 @@ type getWorkstationListsResponse struct {
 	Data []types.Workstation `json:"data"`
 }
 
-// @Summary Workstation
-// @Tags auth
-// @Description create account
-// @ID create-account
+// @Summary Get Workstation Data
+// @Tags workstation
+// @Description get workstation data
+// @ID get-workstation
 // @Accept  json
 // @Produce  json
-// @Param input body todo.User true "account info"
-// @Success 200 {integer} integer 1
+// @Success 200 {object} getWorkstationListsResponse "response"
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /auth/sign-up [post]
+// @Router /api/workstation  [post]
 func (h *Handler) getWorkstation(c *gin.Context) {
 	items, err := h.services.Workstation.GetWorkstationList()
 	if err != nil {

@@ -5,9 +5,9 @@ import (
 	"net/http"
 )
 
-// @Summary Get All Responsibility
+// @Summary Get Responsibility List
 // @Tags responsibility
-// @Description get all data about responsibility
+// @Description get responsibility list
 // @ID get-responsibility-lists
 // @Accept  json
 // @Produce  json
