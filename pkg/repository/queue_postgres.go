@@ -14,6 +14,7 @@ func NewQueuePostgres(db *sqlx.DB) *QueuePostgres {
 	return &QueuePostgres{db: db}
 }
 
+// GetResponsibilityByEmployeeId получает список обязанностей сотрудника по его ID
 func (r *QueuePostgres) GetResponsibilityByEmployeeId(employeeId int) ([]string, error) {
 
 	var responsibilityName []string
@@ -26,6 +27,7 @@ func (r *QueuePostgres) GetResponsibilityByEmployeeId(employeeId int) ([]string,
 	return responsibilityName, err
 }
 
+// GetResponsibilityByWorkstationId получает функции (обязанности) рабочего места по его ID
 func (r *QueuePostgres) GetResponsibilityByWorkstationId(workstationId int) ([]string, error) {
 
 	var responsibilityName []string
@@ -35,6 +37,7 @@ func (r *QueuePostgres) GetResponsibilityByWorkstationId(workstationId int) ([]s
 	return responsibilityName, err
 }
 
+// SetStatusEmployee обновляет статус сотрудника в БД
 func (r *QueuePostgres) SetStatusEmployee(statusCode int, employeeId int) (sql.Result, error) {
 	query := fmt.Sprintf("UPDATE %s SET status=$1 WHERE employee_id=$2", employeeTable)
 	res, err := r.db.Exec(query, statusCode, employeeId)

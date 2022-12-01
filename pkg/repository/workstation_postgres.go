@@ -16,6 +16,7 @@ func NewWorkstationPostgres(db *sqlx.DB) *WorkstationPostgres {
 	return &WorkstationPostgres{db: db}
 }
 
+// GetWorkstationList получает список рабочих станций из БД
 func (r *WorkstationPostgres) GetWorkstationList() ([]types.Workstation, error) {
 	var workstation []types.Workstation
 	query := fmt.Sprintf("SELECT * FROM %s", workstationTable)
@@ -24,6 +25,7 @@ func (r *WorkstationPostgres) GetWorkstationList() ([]types.Workstation, error) 
 	return workstation, err
 }
 
+// GetWorkstation получает данные о рабочем месте из БД по его ID
 func (r *WorkstationPostgres) GetWorkstation(workstationId int) (types.Workstation, error) {
 	var workstation types.Workstation
 	query := fmt.Sprintf("SELECT workstation_id, workstation_name, employee_id FROM %s WHERE workstation_id=$1", workstationTable)

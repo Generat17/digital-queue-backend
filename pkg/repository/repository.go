@@ -12,7 +12,7 @@ type Authorization interface {
 	GetEmployee(username, password string) (types.Employee, error)
 	GetEmployeeById(employeeId int) (types.Employee, error)
 	SetSession(refreshToken string, expiresAt int64, workstationId int, employeeId int) (sql.Result, error)
-	CheckSession(employeeId int) (types.SessionInfo, error)
+	GetSession(employeeId int) (types.SessionInfo, error)
 	ClearSession(employeeId int) (sql.Result, error)
 	GetStatusEmployee(employeeId int) (int, error)
 }

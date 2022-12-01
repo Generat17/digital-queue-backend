@@ -15,6 +15,7 @@ func NewResponsibilityPostgres(db *sqlx.DB) *ResponsibilityPostgres {
 	return &ResponsibilityPostgres{db: db}
 }
 
+// GetResponsibilityList получает список всех обязанностей из БД
 func (r *ResponsibilityPostgres) GetResponsibilityList() ([]types.Responsibility, error) {
 	var responsibility []types.Responsibility
 	query := fmt.Sprintf("SELECT * FROM %s", responsibilityTable)

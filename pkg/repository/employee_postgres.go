@@ -15,6 +15,7 @@ func NewEmployeePostgres(db *sqlx.DB) *EmployeePostgres {
 	return &EmployeePostgres{db: db}
 }
 
+// GetEmployeeList получает список пользователей из БД
 func (r *EmployeePostgres) GetEmployeeList() ([]types.Employee, error) {
 	var employee []types.Employee
 	query := fmt.Sprintf("SELECT employee_id, first_name, second_name, position, session_state, status FROM %s", employeeTable)

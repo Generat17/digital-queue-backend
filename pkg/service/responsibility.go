@@ -13,6 +13,7 @@ func NewResponsibilityService(repo repository.Responsibility) *ResponsibilitySer
 	return &ResponsibilityService{repo: repo}
 }
 
+// GetResponsibilityList получает список обязанностей
 func (s *ResponsibilityService) GetResponsibilityList() ([]types.Responsibility, error) {
 	return s.repo.GetResponsibilityList()
 }

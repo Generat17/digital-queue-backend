@@ -28,11 +28,13 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
+// CreateEmployee создает сотрудника
 func (s *AuthService) CreateEmployee(employee types.Employee) (int, error) {
 	employee.Password = generatePasswordHash(employee.Password)
 	return s.repo.CreateEmployee(employee)
 }
 
+// GenerateTokenWorkstation создает jwt access token
 func (s *AuthService) GenerateTokenWorkstation(username, password string, workstationId int) (string, error) {
 	employee, err := s.repo.GetEmployeeId(username, generatePasswordHash(password))
 	if err != nil {
@@ -54,6 +56,7 @@ func (s *AuthService) GenerateTokenWorkstation(username, password string, workst
 	return token.SignedString([]byte(os.Getenv("SIGNING_KEY")))
 }
 
+// GetEmployee получает данные сотрудника по логину и паролю сотрудника
 func (s *AuthService) GetEmployee(username, password string) (types.Employee, error) {
 	employee, err := s.repo.GetEmployee(username, generatePasswordHash(password))
 	if err != nil {
@@ -63,6 +66,7 @@ func (s *AuthService) GetEmployee(username, password string) (types.Employee, er
 	return employee, nil
 }
 
+// GetEmployeeById получает данные сотрудника по ID сотрудника
 func (s *AuthService) GetEmployeeById(employeeId int) (types.Employee, error) {
 	employee, err := s.repo.GetEmployeeById(employeeId)
 	if err != nil {
@@ -72,10 +76,11 @@ func (s *AuthService) GetEmployeeById(employeeId int) (types.Employee, error) {
 	return employee, nil
 }
 
+// UpdateTokenWorkstation проверяет возможность выдачи нового jwt access token, при успехе, выдает новый jwt access token
 func (s *AuthService) UpdateTokenWorkstation(employeeId, workstationId int, refreshToken string) (string, error) {
 
 	var getSessionInfo types.SessionInfo
-	getSessionInfo, err := s.repo.CheckSession(employeeId)
+	getSessionInfo, err := s.repo.GetSession(employeeId)
 	if err != nil {
 		return "error check session", err
 	}
@@ -106,6 +111,7 @@ func (s *AuthService) UpdateTokenWorkstation(employeeId, workstationId int, refr
 	return "refreshToken is invalid", errors.New("refreshToken is invalid")
 }
 
+// ParseTokenWorkstation парсит jwt access token
 func (s *AuthService) ParseTokenWorkstation(accessToken string) (types.ParseTokenWorkstationResponse, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaimsWorkstation{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -126,6 +132,7 @@ func (s *AuthService) ParseTokenWorkstation(accessToken string) (types.ParseToke
 	return types.ParseTokenWorkstationResponse{UserId: claims.UserId, WorkstationId: claims.WorkstationId}, nil
 }
 
+// GenerateRefreshToken создает refresh token
 func (s *AuthService) GenerateRefreshToken() (string, error) {
 	b := make([]byte, 32)
 
@@ -140,6 +147,7 @@ func (s *AuthService) GenerateRefreshToken() (string, error) {
 	return fmt.Sprintf("%x", b), nil
 }
 
+// SetSession устанавливает состояние сессии сотрудника
 func (s *AuthService) SetSession(refreshToken string, workstationId int, employeeId int) (bool, error) {
 
 	timeNow := time.Now().Unix()
@@ -153,6 +161,7 @@ func (s *AuthService) SetSession(refreshToken string, workstationId int, employe
 	return true, nil
 }
 
+// LogOut завершение сессии сотрудника
 func (s *AuthService) LogOut(employeeId int) (bool, error) {
 
 	_, err := s.repo.ClearSession(employeeId)
@@ -164,6 +173,7 @@ func (s *AuthService) LogOut(employeeId int) (bool, error) {
 	return true, nil
 }
 
+// GetStatusEmployee Получение текущего статуса сотрудника
 func (s *AuthService) GetStatusEmployee(employeeId int) (int, error) {
 
 	statusEmployee, err := s.repo.GetStatusEmployee(employeeId)
@@ -174,6 +184,7 @@ func (s *AuthService) GetStatusEmployee(employeeId int) (int, error) {
 	return statusEmployee, nil
 }
 
+// generatePasswordHash Хэширует пароль
 func generatePasswordHash(password string) string {
 	hash := sha1.New()
 	hash.Write([]byte(password))

@@ -15,10 +15,12 @@ func NewQueueService(repo repository.Queue, queue *[]types.QueueItem) *QueueServ
 	return &QueueService{repo: repo, queue: *queue}
 }
 
+// GetQueueList возвращает список клиентов(элементов) в очереди
 func (s *QueueService) GetQueueList() ([]types.QueueItem, error) {
 	return s.queue, nil
 }
 
+// AddQueueItem добавляет нового клиента (элемент) в конец очереди
 func (s *QueueService) AddQueueItem(service string) (int, error) {
 	// Получение текущего времени
 	time := (time.Now()).String()
@@ -29,6 +31,7 @@ func (s *QueueService) AddQueueItem(service string) (int, error) {
 	return len(s.queue), nil
 }
 
+// ConfirmClient подтверждает, что клиент подошел к рабочему месту сотрудника
 func (s *QueueService) ConfirmClient(numberQueue, employeeId int) (int, error) {
 
 	copy(s.queue[numberQueue:], s.queue[numberQueue+1:]) // удаляем элемент из очереди
@@ -40,6 +43,7 @@ func (s *QueueService) ConfirmClient(numberQueue, employeeId int) (int, error) {
 	return 3, nil
 }
 
+// EndClient завершает обслуживание клиента
 func (s *QueueService) EndClient(employeeId int) (int, error) {
 
 	s.repo.SetStatusEmployee(1, employeeId)
@@ -47,12 +51,14 @@ func (s *QueueService) EndClient(employeeId int) (int, error) {
 	return 1, nil
 }
 
+// SetEmployeeStatus устанавливает статус для сотрудника
 func (s *QueueService) SetEmployeeStatus(statusCode, employeeId int) (bool, error) {
 	s.repo.SetStatusEmployee(statusCode, employeeId)
 
 	return true, nil
 }
 
+// GetNewClient Выбирает доступного клиента из очереди и возращает информацию о нем
 func (s *QueueService) GetNewClient(employeeId, workstationId int) (types.GetNewClientResponse, error) {
 	// получаем список обязанностей сотрудника
 	responsibilityEmployeeList, err := s.repo.GetResponsibilityByEmployeeId(employeeId)
