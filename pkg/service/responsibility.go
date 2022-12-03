@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"server/pkg/repository"
 	"server/types"
 )
@@ -16,4 +17,19 @@ func NewResponsibilityService(repo repository.Responsibility) *ResponsibilitySer
 // GetResponsibilityList получает список обязанностей
 func (s *ResponsibilityService) GetResponsibilityList() ([]types.Responsibility, error) {
 	return s.repo.GetResponsibilityList()
+}
+
+// UpdateResponsibility обновляет обязанность
+func (s *ResponsibilityService) UpdateResponsibility(responsibilityId int, responsibilityName string) (sql.Result, error) {
+	return s.repo.UpdateResponsibility(responsibilityId, responsibilityName)
+}
+
+// RemoveResponsibility удаляет обязанность
+func (s *ResponsibilityService) RemoveResponsibility(responsibilityId int) (sql.Result, error) {
+	return s.repo.RemoveResponsibility(responsibilityId)
+}
+
+// AddResponsibility создает обязанность
+func (s *ResponsibilityService) AddResponsibility(responsibilityName string) (sql.Result, error) {
+	return s.repo.AddResponsibility(responsibilityName)
 }

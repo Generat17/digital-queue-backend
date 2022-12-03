@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -22,4 +23,28 @@ func (r *ResponsibilityPostgres) GetResponsibilityList() ([]types.Responsibility
 	err := r.db.Select(&responsibility, query)
 
 	return responsibility, err
+}
+
+// UpdateResponsibility обновляет запись об Обязанности в БД по id
+func (r *ResponsibilityPostgres) UpdateResponsibility(responsibilityId int, responsibilityName string) (sql.Result, error) {
+	query := fmt.Sprintf("UPDATE %s SET responsibility_name=$1 WHERE responsibility_id=$2", responsibilityTable)
+	res, err := r.db.Exec(query, responsibilityName, responsibilityId)
+
+	return res, err
+}
+
+// RemoveResponsibility удаляет запись об Обязанности в БД по id
+func (r *ResponsibilityPostgres) RemoveResponsibility(responsibilityId int) (sql.Result, error) {
+	query := fmt.Sprintf("DELETE FROM %s WHERE responsibility_id=$1", responsibilityTable)
+	res, err := r.db.Exec(query, responsibilityId)
+
+	return res, err
+}
+
+// AddResponsibility добавляет запись об Обязанности в БД
+func (r *ResponsibilityPostgres) AddResponsibility(responsibilityName string) (sql.Result, error) {
+	query := fmt.Sprintf("INSERT INTO %s (responsibility_name) VALUES ($1)", responsibilityTable)
+	res, err := r.db.Exec(query, responsibilityName)
+
+	return res, err
 }

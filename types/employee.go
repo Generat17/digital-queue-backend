@@ -13,6 +13,7 @@ type Employee struct {
 	RefreshToken  string `json:"refresh_token" db:"refresh_token"`
 	ExpiresAt     int    `json:"expires_at" db:"expires_at"`
 	WorkstationId int    `json:"workstation_id" db:"workstation_id"`
+	IsAdmin       bool   `json:"is_admin" db:"is_admin"`
 }
 
 type GetNewClientResponse struct {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"server/pkg/repository"
 	"server/types"
 )
@@ -33,6 +34,9 @@ type Queue interface {
 
 type Responsibility interface {
 	GetResponsibilityList() ([]types.Responsibility, error)
+	UpdateResponsibility(responsibilityId int, responsibilityName string) (sql.Result, error)
+	RemoveResponsibility(responsibilityId int) (sql.Result, error)
+	AddResponsibility(responsibilityName string) (sql.Result, error)
 }
 
 type Workstation interface {

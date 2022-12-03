@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"math/rand"
 	"os"
@@ -164,10 +165,11 @@ func (s *AuthService) SetSession(refreshToken string, workstationId int, employe
 // LogOut завершение сессии сотрудника
 func (s *AuthService) LogOut(employeeId int) (bool, error) {
 
+	logrus.Print(employeeId)
 	_, err := s.repo.ClearSession(employeeId)
 
 	if err != nil {
-		return false, errors.New("error clear session")
+		return false, err
 	}
 
 	return true, nil

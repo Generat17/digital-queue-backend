@@ -23,6 +23,9 @@ type Employee interface {
 
 type Responsibility interface {
 	GetResponsibilityList() ([]types.Responsibility, error)
+	RemoveResponsibility(responsibilityId int) (sql.Result, error)
+	UpdateResponsibility(responsibilityId int, responsibilityName string) (sql.Result, error)
+	AddResponsibility(responsibilityName string) (sql.Result, error)
 }
 
 type Queue interface {
