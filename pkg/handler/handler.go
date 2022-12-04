@@ -53,6 +53,13 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			responsibility.POST("/update", h.updateResponsibility)
 			responsibility.POST("/remove", h.removeResponsibility)
 		}
+
+		workstation := auth.Group("/workstation", h.userIdentityWorkstation)
+		{
+			workstation.POST("/add", h.addWorkstation)
+			workstation.POST("/update", h.updateWorkstation)
+			workstation.POST("/remove", h.removeWorkstation)
+		}
 	}
 
 	// доработать

@@ -42,6 +42,9 @@ type Responsibility interface {
 type Workstation interface {
 	GetWorkstationList() ([]types.Workstation, error)
 	GetWorkstation(workstationId int) (types.Workstation, error)
+	UpdateWorkstation(workstationId int, workstationName string) (sql.Result, error)
+	RemoveWorkstation(workstationId int) (sql.Result, error)
+	AddWorkstation(workstationName string) (sql.Result, error)
 }
 
 type Service struct {

@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	employeeTable       = "employee"
-	responsibilityTable = "responsibility"
-	workstationTable    = "workstation"
+	employeeTable                  = "employee"
+	responsibilityTable            = "responsibility"
+	workstationTable               = "workstation"
+	workstationResponsibilityTable = "workstation_responsibility"
 )
 
 type Config struct {

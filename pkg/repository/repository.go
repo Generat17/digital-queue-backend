@@ -37,6 +37,10 @@ type Queue interface {
 type Workstation interface {
 	GetWorkstationList() ([]types.Workstation, error)
 	GetWorkstation(workstationId int) (types.Workstation, error)
+	RemoveWorkstation(workstationId int) (sql.Result, error)
+	UpdateWorkstation(workstationId int, workstationName string) (sql.Result, error)
+	AddWorkstation(workstationName string) (sql.Result, error)
+	GetWorkstationResponsibilityList() ([]types.WorkstationResponsibility, error)
 }
 
 type Repository struct {
