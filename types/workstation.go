@@ -2,12 +2,16 @@ package types
 
 import "database/sql"
 
+type WorkstationResponsibilityItem struct {
+	Id   int    `json:"workstation_responsibility_id"`
+	Name string `json:"workstation_responsibility_name"`
+}
+
 type Workstation struct {
-	WorkstationId          int      `json:"workstation_id"  db:"workstation_id"`
-	WorkstationName        string   `json:"workstation_name"  db:"workstation_name"`
-	EmployeeId             int      `json:"employee_id"  db:"employee_id"`
-	ResponsibilityList     []int    `json:"responsibility_list"`
-	ResponsibilityListName []string `json:"responsibility_list_name"`
+	WorkstationId      int                             `json:"workstation_id"  db:"workstation_id"`
+	WorkstationName    string                          `json:"workstation_name"  db:"workstation_name"`
+	EmployeeId         int                             `json:"employee_id"  db:"employee_id"`
+	ResponsibilityList []WorkstationResponsibilityItem `json:"responsibility_list"`
 }
 
 type WorkstationResponsibility struct {

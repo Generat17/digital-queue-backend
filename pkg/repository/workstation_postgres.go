@@ -68,3 +68,19 @@ func (r *WorkstationPostgres) AddWorkstation(workstationName string) (sql.Result
 
 	return res, err
 }
+
+// AddWorkstationResponsibility добавляет запись рабочая станция - обязанность в БД
+func (r *WorkstationPostgres) AddWorkstationResponsibility(workstationId int, responsibilityId int) (sql.Result, error) {
+	query := fmt.Sprintf("INSERT INTO %s (workstation_id, responsibility_id) VALUES ($1, $2)", workstationResponsibilityTable)
+	res, err := r.db.Exec(query, workstationId, responsibilityId)
+
+	return res, err
+}
+
+// RemoveWorkstationResponsibility удаляет запись рабочая станция - обязанность в БД
+func (r *WorkstationPostgres) RemoveWorkstationResponsibility(workstationId int, responsibilityId int) (sql.Result, error) {
+	query := fmt.Sprintf("DELETE FROM %s WHERE workstation_id=$1 AND responsibility_id=$2", workstationResponsibilityTable)
+	res, err := r.db.Exec(query, workstationId, responsibilityId)
+
+	return res, err
+}

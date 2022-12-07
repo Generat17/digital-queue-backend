@@ -41,6 +41,8 @@ type Workstation interface {
 	UpdateWorkstation(workstationId int, workstationName string) (sql.Result, error)
 	AddWorkstation(workstationName string) (sql.Result, error)
 	GetWorkstationResponsibilityList() ([]types.WorkstationResponsibility, error)
+	AddWorkstationResponsibility(workstationId int, responsibilityId int) (sql.Result, error)
+	RemoveWorkstationResponsibility(workstationId int, responsibilityId int) (sql.Result, error)
 }
 
 type Repository struct {

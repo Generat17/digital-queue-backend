@@ -2,7 +2,6 @@ package service
 
 import (
 	"database/sql"
-	"github.com/sirupsen/logrus"
 	"server/pkg/repository"
 	"server/types"
 )
@@ -28,19 +27,15 @@ func (s *WorkstationService) GetWorkstationList() ([]types.Workstation, error) {
 		return nil, err
 	}
 
-	logrus.Print("Длина массива", len(listWorkstation))
-	logrus.Print("Длина друга", len(listWorkstationResponsibility))
-	logrus.Print("Длина друга", listWorkstationResponsibility)
 	for i := 0; i < len(listWorkstation); i++ {
 
 		for j := 0; j < len(listWorkstationResponsibility); j++ {
 			if listWorkstationResponsibility[j].WorkstationId == listWorkstation[i].WorkstationId {
-				listWorkstation[i].ResponsibilityList = append(listWorkstation[i].ResponsibilityList, listWorkstationResponsibility[j].ResponsibilityId)
-				listWorkstation[i].ResponsibilityListName = append(listWorkstation[i].ResponsibilityListName, listWorkstationResponsibility[j].ResponsibilityName)
+				listWorkstation[i].ResponsibilityList = append(listWorkstation[i].ResponsibilityList, types.WorkstationResponsibilityItem{Id: listWorkstationResponsibility[j].ResponsibilityId, Name: listWorkstationResponsibility[j].ResponsibilityName})
 			}
 		}
 	}
-	logrus.Print(listWorkstation)
+
 	return listWorkstation, nil
 }
 
@@ -62,4 +57,14 @@ func (s *WorkstationService) RemoveWorkstation(workstationId int) (sql.Result, e
 // AddWorkstation создает рабочее место
 func (s *WorkstationService) AddWorkstation(workstationName string) (sql.Result, error) {
 	return s.repo.AddWorkstation(workstationName)
+}
+
+// AddWorkstationResponsibility создает связь рабочее место - обязанность
+func (s *WorkstationService) AddWorkstationResponsibility(workstationId int, responsibilityId int) (sql.Result, error) {
+	return s.repo.AddWorkstationResponsibility(workstationId, responsibilityId)
+}
+
+// RemoveWorkstationResponsibility удаляет связь рабочее место - обязанность
+func (s *WorkstationService) RemoveWorkstationResponsibility(workstationId int, responsibilityId int) (sql.Result, error) {
+	return s.repo.RemoveWorkstationResponsibility(workstationId, responsibilityId)
 }

@@ -136,3 +136,77 @@ func (h *Handler) removeWorkstation(c *gin.Context) {
 
 	c.JSON(http.StatusOK, types.ResponseWorkstation{Response: response})
 }
+
+type addWorkstationResponsibilityInput struct {
+	WorkstationId    string `json:"workstationId" binding:"required"`
+	ResponsibilityId string `json:"responsibilityId" binding:"required"`
+}
+
+// @Summary Add Workstation-Responsibility
+// @Tags workstation-responsibility
+// @Description add workstation-responsibility
+// @ID add-workstation-responsibility
+// @Accept  json
+// @Produce  json
+// @Param input body addWorkstationResponsibilityInput true "credentials"
+// @Success 200 {object} types.ResponseWorkstation
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /auth/workstationResponsibility/add [post]
+func (h *Handler) addWorkstationResponsibility(c *gin.Context) {
+	var input addWorkstationResponsibilityInput
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	workstationId, _ := strconv.Atoi(input.WorkstationId)
+	responsibilityId, _ := strconv.Atoi(input.ResponsibilityId)
+
+	response, err := h.services.Workstation.RemoveWorkstationResponsibility(workstationId, responsibilityId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, types.ResponseWorkstation{Response: response})
+}
+
+type removeWorkstationResponsibilityInput struct {
+	WorkstationId    string `json:"workstationId" binding:"required"`
+	ResponsibilityId string `json:"responsibilityId" binding:"required"`
+}
+
+// @Summary Remove Workstation-Responsibility
+// @Tags workstation-responsibility
+// @Description remove workstation-responsibility
+// @ID remove-workstation-responsibility
+// @Accept  json
+// @Produce  json
+// @Param input body removeWorkstationResponsibilityInput true "credentials"
+// @Success 200 {object} types.ResponseWorkstation
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /auth/workstationResponsibility/remove [post]
+func (h *Handler) removeWorkstationResponsibility(c *gin.Context) {
+	var input removeWorkstationResponsibilityInput
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	workstationId, _ := strconv.Atoi(input.WorkstationId)
+	responsibilityId, _ := strconv.Atoi(input.ResponsibilityId)
+
+	response, err := h.services.Workstation.AddWorkstationResponsibility(workstationId, responsibilityId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, types.ResponseWorkstation{Response: response})
+}
